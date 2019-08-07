@@ -7,8 +7,30 @@ import './../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721Re
 import "./Oraclize.sol";
 
 contract Ownable {
-
     
+    address private owner;
+
+    constructor() internal {
+        owner = msg.sender;
+        emit TransferOfOwnership(owner);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller must be owner of the contract.");
+        _;
+    }
+
+    event TransferOfOwnership(address newOwner);
+
+    function getOwner() public returns(address) {
+        return owner;
+    }
+
+    function transferOwnership(address newOwner) public onlyOwner {
+        require(newOwner != address(0), "New owner must be a real address.");
+        owner = newOwner;
+        emit TransferOfOwnership(owner);
+    }
 }
 
 //  TODO's: Create a Pausable contract that inherits from the Ownable contract
