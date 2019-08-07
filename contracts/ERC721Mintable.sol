@@ -22,10 +22,18 @@ contract Ownable {
 
     event TransferOfOwnership(address newOwner);
 
+    /**
+     * @dev Gets the address of the contract owner
+     * @return address of the contract owner
+     */
     function getOwner() public returns(address) {
         return owner;
     }
 
+    /**
+     * @dev Transfer ownership of the contract to a new owner
+     * @param newOwner address which you want to transfer contract ownership to
+     */
     function transferOwnership(address newOwner) public onlyOwner {
         require(newOwner != address(0), "New owner must be a real address.");
         owner = newOwner;
@@ -54,7 +62,11 @@ contract Pausable is Ownable {
         _;
     }
 
-    function setPaused(bool status) public onlyOwner returns(bool) {
+    /**
+     * @dev Pause or Unpause the contract
+     * @param status The pause state you would like the contract to be in
+     */
+    function setPaused(bool status) public onlyOwner {
         require(paused != status, "Specified pause state must be different than current pause state");
         paused = status;
         if (paused) {
@@ -65,13 +77,6 @@ contract Pausable is Ownable {
     }
 
 }
-
-//  TODO's: Create a Pausable contract that inherits from the Ownable contract
-//  1) create a private '_paused' variable of type bool
-//  2) create a public setter using the inherited onlyOwner modifier
-//  3) create an internal constructor that sets the _paused variable to false
-//  4) create 'whenNotPaused' & 'paused' modifier that throws in the appropriate situation
-//  5) create a Paused & Unpaused event that emits the address that triggered the event
 
 contract ERC165 {
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
