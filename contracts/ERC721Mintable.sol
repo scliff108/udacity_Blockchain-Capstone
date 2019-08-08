@@ -150,12 +150,8 @@ contract ERC721 is Pausable, ERC165 {
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    modifier requireValidAddress(address checkAddress) {
-        require(checkAddress != address(0), "Invalid Address");
-        _;
-    }
-
-    function balanceOf(address owner) public view requireValidAddress(owner) returns (uint256) {
+    function balanceOf(address owner) public view returns (uint256) {
+        require(owner != address(0), "Invalid Address");
         return Counters.current(_ownedTokensCount[owner]);
     }
 
@@ -165,15 +161,26 @@ contract ERC721 is Pausable, ERC165 {
 
     /**
      * @dev Approves another address to transfer the given token ID
+     * @param to address that is approved to transfer token
+     * @param tokenId uint256 that you would like to set approval for
      */
     function approve(address to, uint256 tokenId) public {
         require(to != ownerOf(tokenId), "Approver cannot be the owner of the token");
-        require(_isApprovedOrOwner(to, tokenId), "msg.sender must be the owner of the contract or must be approved for all.");
+        require(
+            msg.sender == ownerOf(tokenId) || isApprovedForAll(msg.sender, to),
+            "msg.sender must be the owner of the contract or must be approved for all."
+        );
+
         _tokenApprovals[tokenId] = to;
         emit Approval(ownerOf(tokenId), to, tokenId);
     }
 
-    function getApproved(uint256 tokenId) public view requireValidAddress(_tokenApprovals[tokenId]) returns (address) {
+    /**
+     * @dev Get approved address for a given token
+     * @param tokenId uint256 of the token to get approved address for
+     * @return address which can transfer the given token
+     */
+    function getApproved(uint256 tokenId) public view returns(address) {
         return _tokenApprovals[tokenId];
     }
 
@@ -201,7 +208,6 @@ contract ERC721 is Pausable, ERC165 {
 
     function transferFrom(address from, address to, uint256 tokenId) public {
         require(_isApprovedOrOwner(msg.sender, tokenId), "Not Approved or Owner of token");
-
         _transferFrom(from, to, tokenId);
     }
 
@@ -231,14 +237,15 @@ contract ERC721 is Pausable, ERC165 {
      * @return bool whether the msg.sender is approved for the given token ID,
      * is an operator of the owner, or is the owner of the token
      */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) public view returns (bool) {
         address owner = ownerOf(tokenId);
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
     // @dev Internal function to mint a new token
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
-    function _mint(address to, uint256 tokenId) internal requireValidAddress(to) {
+    function _mint(address to, uint256 tokenId) internal {
+        require(to != address(0), "Invalid Address");
         require(!_exists(tokenId), "Token already exists");
         _tokenOwner[tokenId] = to;
         Counters.increment(_ownedTokensCount[to]);
@@ -247,15 +254,8 @@ contract ERC721 is Pausable, ERC165 {
 
     // @dev Internal function to transfer ownership of a given token ID to another address.
     // TIP: remember the functions to use for Counters. you can refresh yourself with the link above
-    function _transferFrom
-    (
-        address from,
-        address to,
-        uint256 tokenId
-    )
-        internal
-        requireValidAddress(to)
-    {
+    function _transferFrom(address from, address to, uint256 tokenId) internal {
+        require(to != address(0), "Invalid Address");
         require(from == ownerOf(tokenId), "Address is not the owner of the token");
         _clearApproval(tokenId);
         _tokenOwner[tokenId] = to;
@@ -541,16 +541,12 @@ contract ERC721Mintable is ERC721Metadata("CliffCoin", "CFC", "https://s3-us-wes
         owner = msg.sender;
     }
 
-    modifier onlyOwner() {
-        _;
-    }
-
     /**
      * @dev Mint new token
      * @param to address of the owner of the newly minted token
      * @param tokenId id of the newly minted token
      */
-    function mint(address to, uint256 tokenId) public onlyOwner returns(bool) {
+    function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused returns(bool) {
         super._mint(to, tokenId);
         super.setTokenURI(tokenId);
         return true;
