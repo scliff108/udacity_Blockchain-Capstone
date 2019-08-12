@@ -546,11 +546,9 @@ contract ERC721Mintable is ERC721Metadata("CliffCoin", "CFC", "https://s3-us-wes
      * @param to address of the owner of the newly minted token
      * @param tokenId id of the newly minted token
      */
-    function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused returns(bool) {
+    function mint(address to, uint256 tokenId) public onlyOwner whenNotPaused {
         super._mint(to, tokenId);
         super.setTokenURI(tokenId);
-        return true;
     }
-
 }
 
