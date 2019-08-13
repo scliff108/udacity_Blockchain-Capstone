@@ -17,7 +17,7 @@ The capstone will build upon the knowledge you have gained in the course in orde
 5. Migrate to rinkeby `truffle migrate --network rinkeby`
 
 ## Contract Address
-`0xC527e3caf0552ED307Dd9f5AfB17D393135C166f`
+[0xC527e3caf0552ED307Dd9f5AfB17D393135C166f](https://rinkeby.etherscan.io/address/0xc527e3caf0552ed307dd9f5afb17d393135c166f)
 
 ## OpenSea MarketPlace Link
 [OpenSea StoreFront Link](https://rinkeby.opensea.io/category/unidentified-contract-69)
